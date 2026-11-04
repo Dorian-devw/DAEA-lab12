@@ -1,0 +1,247 @@
+@baseUrl = http://localhost:5000
+# Cuando despliegues en la nube, reemplaza la URL por la de tu host, ejemplo:
+# @baseUrl = https://rageroom-api.monsterasp.net
+
+### ============================================================
+### SECCIÓN 1: CÓDIGOS 200 OK (GETs, Filtros y Ruta Anidada)
+### ============================================================
+
+### 1.1 GET todas las salas (200 OK)
+GET {{baseUrl}}/api/salas
+Accept: application/json
+
+### 1.2 GET salas con filtros query string: activa y capacidad mínima (200 OK)
+GET {{baseUrl}}/api/salas?activa=true&capacidadMinima=3
+Accept: application/json
+
+### 1.3 GET salas con filtro de búsqueda por texto (200 OK)
+GET {{baseUrl}}/api/salas?buscar=furia
+Accept: application/json
+
+### 1.4 GET sala por ID existente (200 OK)
+GET {{baseUrl}}/api/salas/1
+Accept: application/json
+
+### 1.5 GET RUTA ANIDADA: Obtener todas las sesiones de una sala (200 OK)
+GET {{baseUrl}}/api/salas/1/sesiones
+Accept: application/json
+
+### 1.6 GET todas las sesiones con datos relacionados (200 OK)
+GET {{baseUrl}}/api/sesiones
+Accept: application/json
+
+### 1.7 GET sesiones con filtros query string: por estado y por sala (200 OK)
+GET {{baseUrl}}/api/sesiones?estado=Confirmada&salaId=1
+Accept: application/json
+
+### 1.8 GET sesión por ID existente (200 OK)
+GET {{baseUrl}}/api/sesiones/1
+Accept: application/json
+
+
+### ============================================================
+### SECCIÓN 2: CÓDIGOS 201 CREATED (POST)
+### ============================================================
+
+### 2.1 POST Crear nueva Sala válida (201 Created)
+POST {{baseUrl}}/api/salas
+Content-Type: application/json
+
+{
+  "nombre": "Sala Cyberpunk Smash",
+  "descripcion": "Zona ambientada con luces neon, impresoras viejas y torres de PC para destrozar.",
+  "capacidadMaxima": 4,
+  "nivelProteccion": "Extremo",
+  "precioBase": 150.00,
+  "activa": true
+}
+
+### 2.2 POST Crear nueva Sesión válida (201 Created)
+# Solo enviamos la clave foránea SalaId (propiedad Sala es nula)
+POST {{baseUrl}}/api/sesiones
+Content-Type: application/json
+
+{
+  "salaId": 1,
+  "clienteNombre": "Lucas Morales",
+  "clienteEmail": "lucas.morales@test.com",
+  "clienteTelefono": "944556677",
+  "fechaHora": "2026-11-10T14:00:00",
+  "duracionMinutos": 30,
+  "cantidadPersonas": 2,
+  "precioTotal": 120.00,
+  "estado": "Pendiente"
+}
+
+
+### ============================================================
+### SECCIÓN 3: CÓDIGOS 204 NO CONTENT (PUT y DELETE)
+### ============================================================
+
+### 3.1 PUT Actualizar sala existente (204 No Content)
+PUT {{baseUrl}}/api/salas/2
+Content-Type: application/json
+
+{
+  "id": 2,
+  "nombre": "Sala Terapia Express Renovada",
+  "descripcion": "Seccion renovada con vajilla fina y botellas artesanales.",
+  "capacidadMaxima": 3,
+  "nivelProteccion": "Basico",
+  "precioBase": 75.00,
+  "activa": true
+}
+
+### 3.2 PUT Actualizar sesión existente (204 No Content)
+PUT {{baseUrl}}/api/sesiones/2
+Content-Type: application/json
+
+{
+  "id": 2,
+  "salaId": 1,
+  "clienteNombre": "Andrea Torres Modificado",
+  "clienteEmail": "andrea.torres@hotmail.com",
+  "clienteTelefono": "912345678",
+  "fechaHora": "2026-11-05T17:30:00",
+  "duracionMinutos": 45,
+  "cantidadPersonas": 3,
+  "precioTotal": 170.00,
+  "estado": "Confirmada"
+}
+
+### 3.3 DELETE Eliminar sesión existente que no esté completada (204 No Content)
+# (Asumiendo que creaste la sesión id 6 o usas una pendiente)
+DELETE {{baseUrl}}/api/sesiones/6
+Accept: application/json
+
+### 3.4 DELETE Eliminar sala sin dependencias (204 No Content)
+# (Sala 4 'Sala Bunker Cero' no tiene sesiones registradas)
+DELETE {{baseUrl}}/api/salas/4
+Accept: application/json
+
+
+### ============================================================
+### SECCIÓN 4: CÓDIGOS 400 BAD REQUEST (Validaciones y Datos Inválidos)
+### ============================================================
+
+### 4.1 PUT con ID de ruta distinto al ID del cuerpo (400 Bad Request)
+PUT {{baseUrl}}/api/salas/1
+Content-Type: application/json
+
+{
+  "id": 99,
+  "nombre": "Nombre Invalido",
+  "capacidadMaxima": 2,
+  "nivelProteccion": "Basico",
+  "precioBase": 50.00,
+  "activa": true
+}
+
+### 4.2 POST Sala con datos que incumplen DataAnnotations (400 Bad Request)
+# Capacidad fuera de rango (máximo 10) y nombre vacío
+POST {{baseUrl}}/api/salas
+Content-Type: application/json
+
+{
+  "nombre": "",
+  "capacidadMaxima": 50,
+  "nivelProteccion": "Extremo",
+  "precioBase": -20.00,
+  "activa": true
+}
+
+### 4.3 POST Sesión con clave foránea inexistente SalaId = 9999 (400 Bad Request)
+POST {{baseUrl}}/api/sesiones
+Content-Type: application/json
+
+{
+  "salaId": 9999,
+  "clienteNombre": "Juan Perez",
+  "clienteEmail": "juan.perez@test.com",
+  "fechaHora": "2026-11-12T10:00:00",
+  "duracionMinutos": 30,
+  "cantidadPersonas": 2,
+  "precioTotal": 100.00,
+  "estado": "Pendiente"
+}
+
+### 4.4 POST Sesión donde cantidad de personas excede la capacidad de la sala (400 Bad Request)
+# Sala 2 tiene capacidad máxima 2 personas, se intenta registrar con 5
+POST {{baseUrl}}/api/sesiones
+Content-Type: application/json
+
+{
+  "salaId": 2,
+  "clienteNombre": "Grupo Excedido",
+  "clienteEmail": "grupo@test.com",
+  "fechaHora": "2026-11-15T10:00:00",
+  "duracionMinutos": 30,
+  "cantidadPersonas": 5,
+  "precioTotal": 150.00,
+  "estado": "Pendiente"
+}
+
+
+### ============================================================
+### SECCIÓN 5: CÓDIGOS 404 NOT FOUND (Recurso no encontrado)
+### ============================================================
+
+### 5.1 GET Sala inexistente (404 Not Found)
+GET {{baseUrl}}/api/salas/99999
+Accept: application/json
+
+### 5.2 GET Sesión inexistente (404 Not Found)
+GET {{baseUrl}}/api/sesiones/99999
+Accept: application/json
+
+### 5.3 GET Ruta anidada con ID de sala inexistente (404 Not Found)
+GET {{baseUrl}}/api/salas/99999/sesiones
+Accept: application/json
+
+### 5.4 DELETE Sala inexistente (404 Not Found)
+DELETE {{baseUrl}}/api/salas/99999
+Accept: application/json
+
+
+### ============================================================
+### SECCIÓN 6: CÓDIGOS 409 CONFLICT (Reglas de Negocio)
+### ============================================================
+
+### 6.1 Regla 1: POST Sala con nombre duplicado (409 Conflict)
+POST {{baseUrl}}/api/salas
+Content-Type: application/json
+
+{
+  "nombre": "Sala Furia Caos",
+  "descripcion": "Intento de registrar sala con nombre ya existente",
+  "capacidadMaxima": 3,
+  "nivelProteccion": "Extremo",
+  "precioBase": 100.00,
+  "activa": true
+}
+
+### 6.2 Regla 2: DELETE Sala que tiene sesiones dependientes (409 Conflict)
+# La sala 1 tiene sesiones asociadas (IDs 1 y 2)
+DELETE {{baseUrl}}/api/salas/1
+Accept: application/json
+
+### 6.3 Regla 3: POST Sesión con cruce de horario en la misma sala (409 Conflict)
+# Sala 1 ya tiene sesión el 2026-11-05 de 15:00 a 15:30. Se intenta reservar a las 15:15
+POST {{baseUrl}}/api/sesiones
+Content-Type: application/json
+
+{
+  "salaId": 1,
+  "clienteNombre": "Persona Conflicto Horario",
+  "clienteEmail": "cruce@test.com",
+  "fechaHora": "2026-11-05T15:15:00",
+  "duracionMinutos": 30,
+  "cantidadPersonas": 2,
+  "precioTotal": 120.00,
+  "estado": "Pendiente"
+}
+
+### 6.4 Regla 4: DELETE Sesión que ya se encuentra en estado 'Completada' (409 Conflict)
+# La sesión 3 está en estado 'Completada' y no debe eliminarse por auditoría
+DELETE {{baseUrl}}/api/sesiones/3
+Accept: application/json

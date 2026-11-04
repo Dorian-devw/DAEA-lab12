@@ -1,0 +1,59 @@
+## ============================================================
+## .gitignore para ASP.NET Core (.NET 10) / MonsterASP
+## ============================================================
+
+# Compilación y binarios
+[Bb]in/
+[Oo]bj/
+[Aa]rms/
+[Aa]rms64/
+x86/
+x64/
+publish/
+[Pp]ublish/
+*.zip
+*.tar.gz
+
+# Entornos y secretos de desarrollo (no subir contraseñas ni cadenas privadas)
+appsettings.Development.json
+appsettings.Production.json
+secrets.json
+
+# Archivos de entorno y logs
+.env
+.env.*
+*.log
+*.tmp
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+Visual-Studio-Document-States.json
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# Documentos de Office y temporales
+*.docx
+*.doc
+~$*
+
+# Archivos del sistema
+Thumbs.db
+[Dd]esktop.ini
+.DS_Store
+*.tmp
+
+
+.docx
